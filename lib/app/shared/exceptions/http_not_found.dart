@@ -1,0 +1,1 @@
+class HttpNotFound implements Exception {}
