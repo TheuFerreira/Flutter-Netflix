@@ -1,8 +1,8 @@
 import 'package:flutter_netflix/app/shared/API/routes/account_route.dart';
 import 'package:flutter_netflix/app/shared/controllers/State/page_state.dart';
 import 'package:flutter_netflix/app/shared/models/account_model.dart';
+import 'package:flutter_netflix/app/shared/singletons/preferences.dart';
 import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'current_account_controller.g.dart';
 
@@ -16,31 +16,36 @@ abstract class CurrentAccountControllerBase with Store {
   @observable
   PageState state = PageState.none;
 
+  late Preferences _prefs;
+
   CurrentAccountControllerBase() {
-    SharedPreferences.getInstance().then((prefs) async {
-      bool containsId = prefs.containsKey('id_account');
-      if (containsId == false) {
-        return;
-      }
+    _getCurrentAccount();
+  }
 
-      state = PageState.loading;
+  void _getCurrentAccount() async {
+    _prefs = await Preferences.getInstance();
 
-      int id = prefs.getInt('id_account')!;
-      currentAccount = await AccountRoute().getById(id);
+    bool containsId = _prefs.idAccountExists();
+    if (containsId == false) {
+      return;
+    }
 
-      state = PageState.none;
-    });
+    state = PageState.loading;
+
+    int? id = _prefs.getIdAccount();
+    currentAccount = await AccountRoute().getById(id!);
+
+    state = PageState.none;
   }
 
   @action
   Future update(AccountModel? account) async {
     currentAccount = account;
 
-    final prefs = await SharedPreferences.getInstance();
     if (account != null) {
-      await prefs.setInt('id_account', account.id!);
+      await _prefs.setIdAccount(account.id!);
     } else {
-      await prefs.remove('id_account');
+      await _prefs.deleteIdAccount();
     }
   }
 
@@ -48,7 +53,6 @@ abstract class CurrentAccountControllerBase with Store {
   Future exit() async {
     currentAccount = null;
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('id_account');
+    await _prefs.deleteIdAccount();
   }
 }

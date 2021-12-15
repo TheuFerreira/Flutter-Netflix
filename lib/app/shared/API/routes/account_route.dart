@@ -4,10 +4,12 @@ import 'package:flutter_netflix/app/shared/exceptions/http_not_found.dart';
 import 'package:flutter_netflix/app/shared/models/account_model.dart';
 
 class AccountRoute {
+  final String _accountURL = '${serverURL}account';
+
   Future<AccountModel?> get(AccountModel account) async {
     try {
       final response = await Dio().get(
-        serverURL + 'account',
+        _accountURL,
         queryParameters: {
           "email": account.email,
           "password": account.password,
@@ -25,7 +27,7 @@ class AccountRoute {
   Future<AccountModel?> getById(int id) async {
     try {
       final response = await Dio().get(
-        serverURL + 'account/id',
+        '$_accountURL/id',
         queryParameters: {
           "id": id,
         },
@@ -42,7 +44,7 @@ class AccountRoute {
   Future<AccountModel?> register(AccountModel account) async {
     try {
       final response = await Dio().post(
-        serverURL + 'account',
+        _accountURL,
         data: {
           'email': account.email,
           'password': account.password,
@@ -60,7 +62,7 @@ class AccountRoute {
 
   Future update(AccountModel account) async {
     await Dio().put(
-      serverURL + 'account/${account.id}',
+      '$_accountURL/${account.id}',
       data: account.toJson(),
     );
   }
