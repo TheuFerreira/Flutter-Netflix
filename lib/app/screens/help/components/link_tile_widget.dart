@@ -42,7 +42,10 @@ class LinkTileWidget extends StatelessWidget {
             ),
           ),
         ),
-        Container(height: 2, color: Colors.grey[200]),
+        Container(
+          height: 2,
+          color: Colors.grey[200],
+        ),
       ],
     );
   }
